@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>字音字形大挑戰 Part 7</title>
+
+<style>
+body{
+  font-family:"Microsoft JhengHei",sans-serif;
+  background:#f4f6f8;
+  text-align:center;
+  padding:20px;
+}
+.header{
+  background:#eef3f7;
+  padding:20px;
+  font-size:28px;
+  font-weight:bold;
+}
+.container{
+  max-width:720px;
+  margin:auto;
+  padding:30px;
+}
+.status{
+  text-align:center;
+  font-size:18px;
+  margin-bottom:25px;
+}
+.question{
+  text-align:center;
+  font-size:32px;
+  margin:30px 0;
+}
+.options button{
+  width:100%;
+  font-size:22px;
+  padding:15px;
+  margin:10px 0;
+  border-radius:10px;
+  border:none;
+  cursor:pointer;
+  background:#ecf0f1;
+}
+.options button:hover{
+  background:#dcdde1;
+}
+.correct{background:#2ecc71!important;color:white;}
+.wrong{background:#e74c3c!important;color:white;}
+#nextBtn{
+  margin-top:25px;
+  width:100%;
+  font-size:20px;
+  padding:14px;
+  border-radius:10px;
+  background:#3498db;
+  color:white;
+  border:none;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">✏️ 字音字形大挑戰 Part 7</div>
+
+<div class="container">
+  <div class="status">
+    第 <span id="num">1</span> 題 / 33 ｜ 得分：<span id="score">0</span>
+  </div>
+
+  <div class="question" id="question"></div>
+  <div class="options" id="options"></div>
+  <button id="nextBtn" onclick="nextQuestion()">下一題</button>
+</div>
+
+<script>
+const idioms = [
+"心血來潮","咬牙切齒","掩耳盜鈴",
+"欣欣向榮","哀鴻遍野","汗流浹背",
+"深思熟慮","根深蒂固","從容不迫",
+"洗心革面","事半功倍","旁敲側擊",
+"心滿意足","循規蹈矩","漸入佳境",
+"無微不至","風調雨順","暢所欲言",
+"夜以繼日","有備無患","緣木求魚",
+"處心積慮","心照不宣","雀屏中選",
+"變本加厲","寸步不離","揚眉吐氣",
+"勞民傷財","方興未艾","期期艾艾",
+"順水推舟","一介不取","錦衣玉食",
+"椎心泣血","隔靴搔癢","故步自封",
+"狹路相逢","冤家路窄","不言而喻"
+];
+
+let questions = shuffle([...idioms]).slice(0,33);
+let index = 0;
+let score = 0;
+let answered = false;
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function randomChar(){
+  const word = idioms[Math.floor(Math.random()*idioms.length)];
+  return word[Math.floor(Math.random()*word.length)];
+}
+
+function createQuestion(){
+  answered=false;
+  document.getElementById("options").innerHTML="";
+  document.getElementById("num").innerText=index+1;
+
+  const answer=questions[index];
+  const pos=Math.floor(Math.random()*answer.length);
+  const correctChar=answer[pos];
+
+  let display=answer.split("");
+  display[pos]="＿";
+  document.getElementById("question").innerText=
+    "請選出正確的字：" + display.join("");
+
+  let options=[correctChar];
+  while(options.length<4){
+    let c=randomChar();
+    if(!options.includes(c)) options.push(c);
+  }
+
+  shuffle(options).forEach(opt=>{
+    const btn=document.createElement("button");
+    btn.innerText=opt;
+    btn.onclick=()=>check(btn,opt,correctChar);
+    document.getElementById("options").appendChild(btn);
+  });
+}
+
+function check(btn,sel,ans){
+  if(answered) return;
+  answered=true;
+  if(sel===ans){
+    btn.classList.add("correct");
+    score+=3;
+  }else{
+    btn.classList.add("wrong");
+  }
+  document.getElementById("score").innerText=score;
+}
+
+function nextQuestion(){
+  index++;
+  if(index>=questions.length){
+    alert("🎉 挑戰完成！\n總分："+score+" 分");
+    return;
+  }
+  createQuestion();
+}
+
+createQuestion();
+</script>
+
+</body>
+</html>

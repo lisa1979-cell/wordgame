@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>字音字形大挑戰 Part 9</title>
+
+<style>
+body{
+  font-family:"Microsoft JhengHei",sans-serif;
+  background:#f4f6f8;
+  text-align:center;
+  padding:20px;
+
+}
+.header{
+  background:#eef3f7;
+  padding:20px;
+  font-size:28px;
+  font-weight:bold;
+}
+.container{
+  max-width:720px;
+  margin:auto;
+  padding:30px;
+}
+.status{
+  text-align:center;
+  font-size:18px;
+  margin-bottom:25px;
+}
+.question{
+  text-align:center;
+  font-size:32px;
+  margin:30px 0;
+}
+.options button{
+  width:100%;
+  font-size:22px;
+  padding:15px;
+  margin:10px 0;
+  border-radius:10px;
+  border:none;
+  cursor:pointer;
+  background:#ecf0f1;
+}
+.options button:hover{
+  background:#dcdde1;
+}
+.correct{background:#2ecc71!important;color:white;}
+.wrong{background:#e74c3c!important;color:white;}
+#nextBtn{
+  margin-top:25px;
+  width:100%;
+  font-size:20px;
+  padding:14px;
+  border-radius:10px;
+  background:#3498db;
+  color:white;
+  border:none;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">✏️ 字音字形大挑戰 Part 9</div>
+
+<div class="container">
+  <div class="status">
+    第 <span id="num">1</span> 題 / 50 ｜ 得分：<span id="score">0</span>
+  </div>
+
+  <div class="question" id="question"></div>
+  <div class="options" id="options"></div>
+  <button id="nextBtn" onclick="nextQuestion()">下一題</button>
+</div>
+
+<script>
+const idioms = [
+"死灰復燃","碩果僅存","寄人籬下",
+  "德高望重","微乎其微","抱殘守缺",
+  "當機立斷","疾風勁草","隱惡揚善",
+  "羽毛未豐","百折不撓","養精蓄銳",
+  "養尊處優","義正辭嚴","汗馬功勞",
+  "沽名釣譽","當務之急","三令五申",
+  "出奇制勝","橫行霸道","引經據典",
+  "孤掌難鳴","漸入佳境","上行下效",
+  "莫逆之交","十拿九穩","同病相憐",
+  "絡繹不絕","弱肉強食","爭先恐後",
+  "傷天害理","無懈可擊","權宜之計",
+  "進退維谷","戰戰兢兢","赤手空拳",
+  "扶老攜幼","一觸即發","欲罷不能",
+  "掩耳盜鈴","賓至如歸","孤陋寡聞",
+  "驚濤駭浪","傾國傾城","步步為營",
+  "如虎添翼","不翼而飛","老馬識途",
+  "垂頭喪氣","困獸猶鬥","死心塌地",
+  "瓜田李下","防患未然","出口成章",
+  "明知故犯","負荊請罪","見仁見智",
+  "委曲求全","流連忘返","率由舊章",
+  "日月如梭","捨本逐末","通宵達旦",
+  "一決雌雄","風塵僕僕","餘音繞梁",
+  "刻骨銘心","惡貫滿盈","譁眾取寵",
+  "強詞奪理","生龍活虎","冠冕堂皇",
+  "杯弓蛇影","啞口無言","吳牛喘月",
+  "杞人憂天","乳臭未乾","水乳交融",
+  "海底撈針","因材施教","明哲保身",
+  "含血噴人","謙沖自牧","以管窺天",
+  "積重難返","奇貨可居","循序漸進",
+  "因地制宜","放蕩不羈","竭澤而漁",
+  "狼狽不堪","群策群力","並駕齊驅",
+  "一瀉千里","雷霆萬鈞","燃眉之急",
+  "含英咀華","對症下藥","鞭長莫及",
+  "責無旁貸","全盤托出","赴湯蹈火",
+  "萬籟俱寂","鉤心鬥角","同流合汙",
+  "有目共睹","東施效顰","適可而止",
+  "老驥伏櫪","老氣橫秋","飲水思源",
+  "脫胎換骨","脣亡齒寒","怨聲載道",
+  "一筆抹煞","尋章摘句","歷歷在目",
+  "千頭萬緒","分庭抗禮","撥亂反正",
+  "以貌取人","先發制人","朝三暮四", "蚍蜉撼樹", "一笑置之",
+"心曠神怡", "對症下藥", "捲土重來",
+"各自為政", "提綱挈領", "另起爐灶",
+"閉門造車",];
+
+let questions = shuffle([...idioms]).slice(0,50);
+let index = 0;
+let score = 0;
+let answered = false;
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function randomChar(){
+  const word = idioms[Math.floor(Math.random()*idioms.length)];
+  return word[Math.floor(Math.random()*word.length)];
+}
+
+function createQuestion(){
+  answered=false;
+  document.getElementById("options").innerHTML="";
+  document.getElementById("num").innerText=index+1;
+
+  const answer=questions[index];
+  const pos=Math.floor(Math.random()*answer.length);
+  const correctChar=answer[pos];
+
+  let display=answer.split("");
+  display[pos]="＿";
+  document.getElementById("question").innerText=
+    "請選出正確的字：" + display.join("");
+
+  let options=[correctChar];
+  while(options.length<4){
+    let c=randomChar();
+    if(!options.includes(c)) options.push(c);
+  }
+
+  shuffle(options).forEach(opt=>{
+    const btn=document.createElement("button");
+    btn.innerText=opt;
+    btn.onclick=()=>check(btn,opt,correctChar);
+    document.getElementById("options").appendChild(btn);
+  });
+}
+
+function check(btn,sel,ans){
+  if(answered) return;
+  answered=true;
+  if(sel===ans){
+    btn.classList.add("correct");
+    score+=2;
+  }else{
+    btn.classList.add("wrong");
+  }
+  document.getElementById("score").innerText=score;
+}
+
+function nextQuestion(){
+  index++;
+  if(index>=questions.length){
+    alert("🎉 挑戰完成！\n總分："+score+" 分");
+    return;
+  }
+  createQuestion();
+}
+
+createQuestion();
+</script>
+
+</body>
+</html>
