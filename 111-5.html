@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>字音字形大挑戰 Part 5</title>
+<style>
+body{
+  font-family:"Microsoft JhengHei",sans-serif;
+  background:#f1f5f9;
+  text-align:center;
+  padding:20px;
+}
+#game{
+  max-width:760px;
+  margin:auto;
+  background:#fff;
+  padding:28px;
+  border-radius:18px;
+  box-shadow:0 6px 16px rgba(0,0,0,.12);
+}
+h1{margin-bottom:10px;}
+#info{font-size:18px;margin-bottom:16px;}
+.question{
+  font-size:30px;
+  margin:22px 0;
+}
+.options button{
+  width:100%;
+  font-size:22px;
+  padding:16px;
+  margin:10px 0;
+  border:none;
+  border-radius:14px;
+  background:#e0e7ff;
+  cursor:pointer;
+  text-align:left;
+}
+.options button:disabled{
+  background:#e5e7eb;
+  cursor:not-allowed;
+}
+.correct{background:#bbf7d0 !important;}
+.wrong{background:#fecaca !important;}
+#nextBtn{
+  display:none;
+  font-size:22px;
+  padding:12px 40px;
+  border:none;
+  border-radius:14px;
+  background:#4f46e5;
+  color:#fff;
+  margin-top:22px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>✏️ 字音字形大挑戰 Part 5</h1>
+
+<div id="game">
+  <div id="info"></div>
+  <div class="question" id="question"></div>
+  <div class="options" id="options"></div>
+  <button id="nextBtn" onclick="nextQuestion()">下一題</button>
+</div>
+
+<script>
+const idioms = [
+"觸類旁通","初出茅廬","投機取巧",
+  "返老還童","耳濡目染","野心勃勃",
+  "珠圓玉潤","目光如豆","雕蟲小技",
+  "狼心狗肺","老成持重","勢均力敵",
+  "口誅筆伐","匹夫之勇","拖泥帶水",
+  "以德報怨","民不聊生","勢如破竹",
+  "虎視眈眈","星羅棋布","義憤填膺",
+  "逃之夭夭","手足無措","耳提面命",
+  "千頭萬緒","抱薪救火","明察秋毫",
+  "神機妙算","胸有成竹","天衣無縫",
+  "事與願違","難兄難弟","精益求精",
+  "焦頭爛額","千方百計","指鹿為馬",
+  "功敗垂成","左顧右盼","理直氣壯",
+  "身敗名裂","標新立異","伯仲之間",
+  "得心應手","各懷鬼胎","家喻戶曉",
+  "盲人摸象","如釋重負","出口成章",
+  "朝令夕改","洛陽紙貴","塞翁失馬",
+  "當仁不讓","有目共睹","循循善誘",
+  "推波助瀾","包羅萬象","千篇一律"];
+
+// 洗牌
+function shuffle(arr){
+  return arr.sort(()=>Math.random()-0.5);
+}
+
+// 產生成語克漏字題
+function makeQuestion(idiom){
+  const pos = Math.floor(Math.random()*idiom.length);
+  const answer = idiom[pos];
+  let display = idiom.split("");
+  display[pos] = "□";
+
+  const pool = "天地日月山水大小多少心手口目上下左右人物前後".split("");
+  let options = shuffle([
+    answer,
+    ...shuffle(pool).filter(c=>c!==answer).slice(0,3)
+  ]);
+
+  return { q: display.join(""), a: answer, o: options };
+}
+
+let questions = shuffle(idioms).slice(0,33).map(makeQuestion);
+let index = 0;
+let score = 0;
+let answered = false;
+
+function loadQuestion(){
+  answered = false;
+  document.getElementById("nextBtn").style.display="none";
+  document.getElementById("info").innerText =
+    `第 ${index+1} 題 / 33 ｜ 得分：${score}`;
+  document.getElementById("question").innerText =
+    "請選出正確的字：" + questions[index].q;
+
+  const box = document.getElementById("options");
+  box.innerHTML = "";
+
+  shuffle([...questions[index].o]).forEach(opt=>{
+    const btn = document.createElement("button");
+    btn.innerText = opt;
+    btn.onclick = ()=>checkAnswer(btn,opt);
+    box.appendChild(btn);
+  });
+}
+
+function checkAnswer(btn, choice){
+  if(answered) return;
+  answered = true;
+
+  document.querySelectorAll(".options button")
+    .forEach(b=>b.disabled=true);
+
+  if(choice === questions[index].a){
+    btn.classList.add("correct");
+    score += 3;
+  }else{
+    btn.classList.add("wrong");
+    document.querySelectorAll(".options button").forEach(b=>{
+      if(b.innerText === questions[index].a){
+        b.classList.add("correct");
+      }
+    });
+  }
+  document.getElementById("nextBtn").style.display="inline-block";
+}
+
+function nextQuestion(){
+  index++;
+  if(index < 33){
+    loadQuestion();
+  }else{
+    document.getElementById("game").innerHTML = `
+      <h2>🎉 挑戰完成</h2>
+      <p>總分：<strong>${score}</strong> 分（滿分 99 分）</p>
+      <button onclick="location.reload()">再玩一次</button>
+    `;
+  }
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>
