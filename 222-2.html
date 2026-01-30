@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>成語意思理解 PART2</title>
+<style>
+  body {
+    font-family: "Noto Sans TC", sans-serif;
+    background: #f4f6fa;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  .question-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 720px;
+    margin: 20px auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .options button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 14px;
+    font-size: 17px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    background: #f9f9f9;
+  }
+  .options button:hover {
+    background: #e8f0ff;
+  }
+  .correct {
+    background-color: #c8f7c5 !important;
+  }
+  .wrong {
+    background-color: #f7c5c5 !important;
+  }
+  .score {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+
+<h1>成語意思理解 PART2</h1>
+<div id="game"></div>
+<div class="score" id="score"></div>
+
+<script>
+const idioms = [
+  { word: "本末倒置", meaning: "把重要和次要的事情弄顛倒" },
+  { word: "自以為是", meaning: "自認正確，不接受別人意見" },
+  { word: "價值連城", meaning: "形容非常珍貴" },
+  { word: "手忙腳亂", meaning: "事情繁多而慌亂" },
+  { word: "十全十美", meaning: "十分完美，毫無缺點" },
+  { word: "汗流浹背", meaning: "形容非常勞累或炎熱" },
+  { word: "離鄉背井", meaning: "離開家鄉到外地生活" },
+  { word: "風吹草動", meaning: "一點小動靜或消息" },
+  { word: "節外生枝", meaning: "事情之外又生出麻煩" },
+  { word: "明知故犯", meaning: "明明知道錯還去做" },
+  { word: "心直口快", meaning: "想到什麼就說什麼" },
+  { word: "望梅止渴", meaning: "用空想來安慰自己" },
+  { word: "瞎子摸象", meaning: "只看到局部，無法了解全貌" },
+  { word: "粗枝大葉", meaning: "做事不夠細心" },
+  { word: "自相矛盾", meaning: "前後說法互相衝突" },
+  { word: "七嘴八舌", meaning: "很多人一起說話，意見紛亂" },
+  { word: "聚沙成塔", meaning: "一點一滴累積成大成果" },
+  { word: "歡欣鼓舞", meaning: "非常高興而振奮" },
+  { word: "笑逐顏開", meaning: "笑容滿面，非常開心" },
+  { word: "興高采烈", meaning: "情緒高昂，非常快樂" },
+  { word: "指日可待", meaning: "事情很快就會實現" },
+  { word: "欣欣向榮", meaning: "事物蓬勃發展" },
+  { word: "賞心悅目", meaning: "看到讓人心情愉快" },
+  { word: "無微不至", meaning: "照顧得非常周到" },
+  { word: "心安理得", meaning: "做事沒有愧疚感" },
+  { word: "雙管齊下", meaning: "同時從兩方面進行" },
+  { word: "迫不及待", meaning: "急切得等不下去" },
+  { word: "井井有條", meaning: "事情有秩序、不混亂" },
+  { word: "五體投地", meaning: "非常佩服" },
+  { word: "大驚小怪", meaning: "對小事過度驚訝" },
+  { word: "良藥苦口", meaning: "有益的忠告不動聽" },
+  { word: "風平浪靜", meaning: "事情平穩沒有波折" },
+  { word: "世外桃源", meaning: "與世隔絕的美好地方" },
+  { word: "志同道合", meaning: "志向和想法相同" },
+  { word: "不約而同", meaning: "沒有約定卻同時做同樣的事" },
+  { word: "差強人意", meaning: "大致上還可以接受" },
+  { word: "難能可貴", meaning: "非常難得，值得珍惜" },
+  { word: "萬紫千紅", meaning: "景象豐富多彩" },
+  { word: "守口如瓶", meaning: "嘴巴很緊，不洩漏秘密" },
+  { word: "聚精會神", meaning: "精神非常集中" },
+  { word: "揚眉吐氣", meaning: "擺脫壓力，感到得意" },
+  { word: "粗茶淡飯", meaning: "生活簡單樸實" },
+  { word: "千方百計", meaning: "想盡各種辦法" },
+  { word: "腳踏實地", meaning: "做事踏實、不浮誇" },
+  { word: "百發百中", meaning: "每次都成功" },
+  { word: "平分秋色", meaning: "雙方實力相當" },
+  { word: "畫蛇添足", meaning: "多此一舉，反而壞事" },
+  { word: "同心協力", meaning: "大家齊心合作" }
+];
+
+let score = 0;
+let current = 0;
+const questions = idioms.sort(() => 0.5 - Math.random()).slice(0, 30);
+
+function loadQuestion() {
+  const q = questions[current];
+  const container = document.getElementById("game");
+  container.innerHTML = "";
+
+  const box = document.createElement("div");
+  box.className = "question-box";
+
+  const title = document.createElement("h2");
+  title.textContent = `第 ${current + 1} 題（3.3分）：${q.word}`;
+  box.appendChild(title);
+
+  const optionsDiv = document.createElement("div");
+  optionsDiv.className = "options";
+
+  let options = [q.meaning];
+  while (options.length < 4) {
+    const m = idioms[Math.floor(Math.random() * idioms.length)].meaning;
+    if (!options.includes(m)) options.push(m);
+  }
+
+  options.sort(() => 0.5 - Math.random());
+
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.onclick = () => {
+      document.querySelectorAll("button").forEach(b => b.disabled = true);
+      if (opt === q.meaning) {
+        btn.classList.add("correct");
+        score += 3.3;
+      } else {
+        btn.classList.add("wrong");
+      }
+      setTimeout(() => {
+        current++;
+        if (current < questions.length) {
+          loadQuestion();
+        } else {
+          document.getElementById("game").innerHTML =
+            `<div class="question-box">
+              <h2>遊戲結束 🎉</h2>
+              <p>你的總分是：${score.toFixed(1)} 分</p>
+            </div>`;
+          document.getElementById("score").textContent = "";
+        }
+      }, 800);
+    };
+    optionsDiv.appendChild(btn);
+  });
+
+  box.appendChild(optionsDiv);
+  container.appendChild(box);
+  document.getElementById("score").textContent = `目前得分：${score.toFixed(1)} 分`;
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>

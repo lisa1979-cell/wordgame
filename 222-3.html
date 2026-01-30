@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>成語意思理解 PART3</title>
+<style>
+  body {
+    font-family: "Noto Sans TC", sans-serif;
+    background: #f4f6fa;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  .question-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 760px;
+    margin: 20px auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .options button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 14px;
+    font-size: 17px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    background: #f9f9f9;
+  }
+  .options button:hover {
+    background: #e8f0ff;
+  }
+  .correct {
+    background-color: #c8f7c5 !important;
+  }
+  .wrong {
+    background-color: #f7c5c5 !important;
+  }
+  .score {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+
+<h1>成語意思理解 PART3</h1>
+<div id="game"></div>
+<div class="score" id="score"></div>
+
+<script>
+const idioms = [
+  { word: "木已成舟", meaning: "事情已成定局，無法改變" },
+  { word: "洋洋灑灑", meaning: "文章或談話內容多而流暢" },
+  { word: "滿載而歸", meaning: "收穫豐富地回來" },
+  { word: "嘆為觀止", meaning: "讚嘆到極點" },
+  { word: "投鼠忌器", meaning: "做事有所顧忌，不敢放手" },
+  { word: "東窗事發", meaning: "祕密或壞事被揭穿" },
+  { word: "一板一眼", meaning: "做事有規矩，不馬虎" },
+  { word: "拍案叫絕", meaning: "非常讚賞" },
+  { word: "搖旗吶喊", meaning: "替人助勢、聲援" },
+  { word: "餘音繞梁", meaning: "聲音優美，令人回味" },
+  { word: "咎由自取", meaning: "錯誤是自己造成的" },
+  { word: "撲朔迷離", meaning: "事情複雜，難以分辨" },
+  { word: "當務之急", meaning: "目前最重要、最急迫的事" },
+  { word: "隨機應變", meaning: "依情況靈活處理" },
+  { word: "藏頭露尾", meaning: "說話或做事不完全坦白" },
+  { word: "居安思危", meaning: "在安定時想到可能的危險" },
+  { word: "痛改前非", meaning: "徹底改正以前的錯誤" },
+  { word: "欺善怕惡", meaning: "欺負善良的人，害怕惡人" },
+  { word: "朝三暮四", meaning: "反覆無常，沒有定見" },
+  { word: "利令智昏", meaning: "被利益沖昏頭腦" },
+  { word: "傷天害理", meaning: "做出違背良心的壞事" },
+  { word: "張冠李戴", meaning: "把事情弄錯，對錯顛倒" },
+  { word: "融會貫通", meaning: "充分理解並靈活運用" },
+  { word: "漠不關心", meaning: "對事情毫不在意" },
+  { word: "心平氣和", meaning: "情緒平穩，不急不怒" },
+  { word: "一毛不拔", meaning: "非常吝嗇" },
+  { word: "欲蓋彌彰", meaning: "越想掩飾，反而越明顯" },
+  { word: "苦口婆心", meaning: "耐心再三地勸說" },
+  { word: "斬釘截鐵", meaning: "態度堅決，不拖泥帶水" },
+  { word: "細嚼慢嚥", meaning: "慢慢品味，仔細體會" },
+  { word: "餘波盪漾", meaning: "事情結束後仍有影響" },
+  { word: "天羅地網", meaning: "嚴密的包圍或防範" },
+  { word: "史無前例", meaning: "從來沒有發生過" },
+  { word: "守口如瓶", meaning: "嘴巴很緊，不洩漏秘密" },
+  { word: "兵不厭詐", meaning: "作戰時可以使用計謀" },
+  { word: "捲土重來", meaning: "失敗後重新再來" },
+  { word: "別開生面", meaning: "形式新穎、與眾不同" },
+  { word: "捕風捉影", meaning: "沒有根據地亂猜" },
+  { word: "天造地設", meaning: "非常自然、完美的配合" }
+];
+
+let score = 0;
+let current = 0;
+const questions = idioms.sort(() => 0.5 - Math.random()).slice(0, 20);
+
+function loadQuestion() {
+  const q = questions[current];
+  const container = document.getElementById("game");
+  container.innerHTML = "";
+
+  const box = document.createElement("div");
+  box.className = "question-box";
+
+  const title = document.createElement("h2");
+  title.textContent = `第 ${current + 1} 題（5分）：${q.word}`;
+  box.appendChild(title);
+
+  const optionsDiv = document.createElement("div");
+  optionsDiv.className = "options";
+
+  let options = [q.meaning];
+  while (options.length < 4) {
+    const m = idioms[Math.floor(Math.random() * idioms.length)].meaning;
+    if (!options.includes(m)) options.push(m);
+  }
+
+  options.sort(() => 0.5 - Math.random());
+
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.onclick = () => {
+      document.querySelectorAll("button").forEach(b => b.disabled = true);
+      if (opt === q.meaning) {
+        btn.classList.add("correct");
+        score += 5;
+      } else {
+        btn.classList.add("wrong");
+      }
+      setTimeout(() => {
+        current++;
+        if (current < questions.length) {
+          loadQuestion();
+        } else {
+          document.getElementById("game").innerHTML =
+            `<div class="question-box">
+              <h2>🎉 遊戲結束</h2>
+              <p>你的總分是：<strong>${score}</strong> 分</p>
+            </div>`;
+          document.getElementById("score").textContent = "";
+        }
+      }, 800);
+    };
+    optionsDiv.appendChild(btn);
+  });
+
+  box.appendChild(optionsDiv);
+  container.appendChild(box);
+  document.getElementById("score").textContent = `目前得分：${score} 分`;
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>

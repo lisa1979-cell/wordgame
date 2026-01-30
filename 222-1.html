@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>成語意思理解 PART1</title>
+<style>
+  body {
+    font-family: "Noto Sans TC", sans-serif;
+    background: #f4f6fa;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  .question-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 700px;
+    margin: 20px auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .options button {
+    display: block;
+    width: 100%;
+    margin: 8px 0;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    background: #f9f9f9;
+  }
+  .options button:hover {
+    background: #e8f0ff;
+  }
+  .correct {
+    background-color: #c8f7c5 !important;
+  }
+  .wrong {
+    background-color: #f7c5c5 !important;
+  }
+  .score {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<h1>成語意思理解 PART1</h1>
+<div id="game"></div>
+<div class="score" id="score"></div>
+
+<script>
+const idioms = [
+  { word: "手舞足蹈", meaning: "高興得跳舞，形容非常快樂" },
+  { word: "力爭上游", meaning: "努力向上，不落人後" },
+  { word: "口是心非", meaning: "嘴巴說的和心裡想的不一樣" },
+  { word: "人山人海", meaning: "形容人非常多" },
+  { word: "大公無私", meaning: "處事公正，沒有私心" },
+  { word: "兩全其美", meaning: "兩方面都得到好結果" },
+  { word: "班門弄斧", meaning: "在行家面前賣弄本領" },
+  { word: "大同小異", meaning: "大致相同，只有小地方不同" },
+  { word: "黑白分明", meaning: "是非對錯清楚明白" },
+  { word: "海闊天空", meaning: "比喻心胸開闊或談話自由" },
+  { word: "鳥語花香", meaning: "形容自然環境美好" },
+  { word: "名正言順", meaning: "理由正當，說話做事有依據" },
+  { word: "一元復始", meaning: "新的一年或新的開始" },
+  { word: "爭先恐後", meaning: "大家搶著向前，唯恐落後" },
+  { word: "一見如故", meaning: "第一次見面就像老朋友" },
+  { word: "不時之需", meaning: "臨時急需時的需要" },
+  { word: "無話不談", meaning: "彼此非常熟，什麼都能談" },
+  { word: "按部就班", meaning: "依照順序，循序進行" },
+  { word: "自作主張", meaning: "不和別人商量就自己決定" },
+  { word: "安分守己", meaning: "守本分，不做超出規矩的事" },
+  { word: "雨後春筍", meaning: "事物大量迅速出現" },
+  { word: "除舊布新", meaning: "去除舊的，迎接新的" },
+  { word: "窗明几淨", meaning: "房間明亮整潔" },
+  { word: "冰天雪地", meaning: "天氣非常寒冷" },
+  { word: "度日如年", meaning: "時間過得非常慢" },
+  { word: "品學兼優", meaning: "品行和學業表現都很好" },
+  { word: "名列前茅", meaning: "成績或表現名次在前面" },
+  { word: "半途而廢", meaning: "事情做到一半就放棄" },
+  { word: "變化多端", meaning: "變化很多，難以預測" },
+  { word: "滴水穿石", meaning: "持之以恆終會成功" },
+  { word: "古色古香", meaning: "具有古老典雅的風味" },
+  { word: "多此一舉", meaning: "做了不必要的事" },
+  { word: "眉開眼笑", meaning: "非常高興的樣子" },
+  { word: "溫故知新", meaning: "複習舊知識得到新體會" },
+  { word: "歡天喜地", meaning: "非常快樂、喜悅" },
+  { word: "走馬看花", meaning: "粗略觀看，不深入了解" }
+];
+
+let score = 0;
+let current = 0;
+const questions = idioms.sort(() => 0.5 - Math.random()).slice(0, 20);
+
+function loadQuestion() {
+  const q = questions[current];
+  const container = document.getElementById("game");
+  container.innerHTML = "";
+
+  const box = document.createElement("div");
+  box.className = "question-box";
+
+  const title = document.createElement("h2");
+  title.textContent = `第 ${current + 1} 題（5分）：${q.word}`;
+  box.appendChild(title);
+
+  const optionsDiv = document.createElement("div");
+  optionsDiv.className = "options";
+
+  let options = [q.meaning];
+  while (options.length < 4) {
+    const m = idioms[Math.floor(Math.random() * idioms.length)].meaning;
+    if (!options.includes(m)) options.push(m);
+  }
+
+  options.sort(() => 0.5 - Math.random());
+
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.onclick = () => {
+      document.querySelectorAll("button").forEach(b => b.disabled = true);
+      if (opt === q.meaning) {
+        btn.classList.add("correct");
+        score += 5;
+      } else {
+        btn.classList.add("wrong");
+      }
+      setTimeout(() => {
+        current++;
+        if (current < questions.length) {
+          loadQuestion();
+        } else {
+          document.getElementById("game").innerHTML =
+            `<div class="question-box"><h2>遊戲結束 🎉</h2><p>你的總分是：${score} 分</p></div>`;
+          document.getElementById("score").textContent = "";
+        }
+      }, 800);
+    };
+    optionsDiv.appendChild(btn);
+  });
+
+  box.appendChild(optionsDiv);
+  container.appendChild(box);
+  document.getElementById("score").textContent = `目前得分：${score} 分`;
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>
