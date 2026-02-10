@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>成語意思理解 PART 9</title>
+<style>
+  body {
+    font-family: "Noto Sans TC", sans-serif;
+    background: #f4f6fa;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  .question-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 760px;
+    margin: 20px auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .options button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 14px;
+    font-size: 17px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    background: #f9f9f9;
+  }
+  .options button:hover {
+    background: #e8f0ff;
+  }
+  .correct {
+    background-color: #c8f7c5 !important;
+  }
+  .wrong {
+    background-color: #f7c5c5 !important;
+  }
+  .score {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+
+<h1>成語意思理解 PART 9</h1>
+<div id="game"></div>
+<div class="score" id="score"></div>
+
+<script>
+const words = [
+  { word: "死灰復燃", meaning: "已經衰敗的事情又重新興起" },
+  { word: "碩果僅存", meaning: "僅存少數珍貴的人或事物" },
+  { word: "寄人籬下", meaning: "依賴他人生活，沒有自主權" },
+  { word: "德高望重", meaning: "品德高尚，受到眾人敬重" },
+  { word: "微乎其微", meaning: "非常非常少，幾乎沒有" },
+  { word: "抱殘守缺", meaning: "固守舊有事物而不求改進" },
+  { word: "當機立斷", meaning: "在關鍵時刻果斷做出決定" },
+  { word: "疾風勁草", meaning: "在嚴峻考驗下才能看出真正的人才" },
+  { word: "隱惡揚善", meaning: "隱藏別人的缺點，宣揚他人的優點" },
+  { word: "羽毛未豐", meaning: "能力或經驗尚未成熟" },
+  { word: "百折不撓", meaning: "歷經挫折仍不屈服" },
+  { word: "養精蓄銳", meaning: "保存體力，準備再出發" },
+  { word: "養尊處優", meaning: "生活安逸，不必辛勞" },
+  { word: "義正辭嚴", meaning: "道理正當，言辭嚴正" },
+  { word: "汗馬功勞", meaning: "為事情付出很大的努力與貢獻" },
+  { word: "沽名釣譽", meaning: "刻意表現以博取名聲" },
+  { word: "當務之急", meaning: "目前最迫切需要處理的事情" },
+  { word: "三令五申", meaning: "再三命令與叮嚀" },
+  { word: "出奇制勝", meaning: "用出人意料的方法取得勝利" },
+  { word: "橫行霸道", meaning: "倚勢欺人，蠻橫無理" },
+  { word: "引經據典", meaning: "引用經典或史實來說明道理" },
+  { word: "孤掌難鳴", meaning: "單靠一個人的力量難以完成事情" },
+  { word: "漸入佳境", meaning: "情況逐漸變得更好" },
+  { word: "上行下效", meaning: "上位者怎麼做，下位者就跟著學" },
+  { word: "莫逆之交", meaning: "感情非常深厚的朋友" },
+  { word: "十拿九穩", meaning: "成功的把握非常大" },
+  { word: "同病相憐", meaning: "有相同遭遇的人互相同情" },
+  { word: "絡繹不絕", meaning: "人或事物接連不斷" },
+  { word: "弱肉強食", meaning: "強者欺凌弱者的現象" },
+  { word: "爭先恐後", meaning: "搶著向前，唯恐落後" },
+  { word: "傷天害理", meaning: "行為殘忍，違背良心" },
+  { word: "無懈可擊", meaning: "沒有任何漏洞可被攻擊" },
+  { word: "權宜之計", meaning: "暫時應付的辦法" },
+  { word: "進退維谷", meaning: "前進後退都很困難" },
+  { word: "戰戰兢兢", meaning: "小心謹慎，十分害怕" },
+  { word: "赤手空拳", meaning: "沒有任何工具或武器" },
+  { word: "扶老攜幼", meaning: "照顧老人與小孩" },
+  { word: "一觸即發", meaning: "情勢非常緊張，隨時可能爆發" },
+  { word: "欲罷不能", meaning: "想停止卻停不下來" },
+  { word: "掩耳盜鈴", meaning: "自欺欺人的行為" },
+  { word: "賓至如歸", meaning: "讓客人感到像回到家一樣" },
+  { word: "孤陋寡聞", meaning: "見識淺薄，知道的不多" },
+  { word: "驚濤駭浪", meaning: "非常驚險危急的情勢" },
+  { word: "傾國傾城", meaning: "容貌極為美麗" },
+  { word: "步步為營", meaning: "行事小心謹慎" },
+  { word: "如虎添翼", meaning: "力量變得更強" },
+  { word: "不翼而飛", meaning: "東西突然不見了" },
+  { word: "老馬識途", meaning: "經驗豐富，熟悉情況" }];
+
+let score = 0;
+let current = 0;
+const questions = words.sort(() => 0.5 - Math.random()).slice(0, 33);
+
+function loadQuestion() {
+  const q = questions[current];
+  const container = document.getElementById("game");
+  container.innerHTML = "";
+
+  const box = document.createElement("div");
+  box.className = "question-box";
+
+  const title = document.createElement("h2");
+  title.textContent = `第 ${current + 1} 題（3分）：${q.word}`;
+  box.appendChild(title);
+
+  const optionsDiv = document.createElement("div");
+  optionsDiv.className = "options";
+
+  let options = [q.meaning];
+  while (options.length < 4) {
+    const m = words[Math.floor(Math.random() * words.length)].meaning;
+    if (!options.includes(m)) options.push(m);
+  }
+
+  options.sort(() => 0.5 - Math.random());
+
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.onclick = () => {
+      document.querySelectorAll("button").forEach(b => b.disabled = true);
+      if (opt === q.meaning) {
+        btn.classList.add("correct");
+        score += 3;
+      } else {
+        btn.classList.add("wrong");
+      }
+      setTimeout(() => {
+        current++;
+        if (current < questions.length) {
+          loadQuestion();
+        } else {
+          document.getElementById("game").innerHTML =
+            `<div class="question-box">
+              <h2>🎉 遊戲結束</h2>
+              <p>你的總分是：<strong>${score}</strong> 分</p>
+            </div>`;
+          document.getElementById("score").textContent = "";
+        }
+      }, 800);
+    };
+    optionsDiv.appendChild(btn);
+  });
+
+  box.appendChild(optionsDiv);
+  container.appendChild(box);
+  document.getElementById("score").textContent = `目前得分：${score} 分`;
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>

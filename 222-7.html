@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>成語意思理解 PART 7</title>
+<style>
+  body {
+    font-family: "Noto Sans TC", sans-serif;
+    background: #f4f6fa;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  .question-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 760px;
+    margin: 20px auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .options button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 14px;
+    font-size: 17px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    background: #f9f9f9;
+  }
+  .options button:hover {
+    background: #e8f0ff;
+  }
+  .correct {
+    background-color: #c8f7c5 !important;
+  }
+  .wrong {
+    background-color: #f7c5c5 !important;
+  }
+  .score {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+
+<h1>成語意思理解 PART 7</h1>
+<div id="game"></div>
+<div class="score" id="score"></div>
+
+<script>
+const idioms = [
+  { word:"心血來潮", meaning:"一時興起，突然想到" },
+  { word:"咬牙切齒", meaning:"非常憤怒或痛恨" },
+  { word:"掩耳盜鈴", meaning:"自欺欺人的行為" },
+  { word:"欣欣向榮", meaning:"事物蓬勃發展" },
+  { word:"哀鴻遍野", meaning:"災民眾多，景象悽慘" },
+  { word:"汗流浹背", meaning:"流汗很多，非常勞累或緊張" },
+  { word:"深思熟慮", meaning:"反覆仔細思考" },
+  { word:"根深蒂固", meaning:"基礎穩固，不易改變" },
+  { word:"從容不迫", meaning:"態度鎮定，不慌不忙" },
+  { word:"洗心革面", meaning:"徹底改過向善" },
+  { word:"事半功倍", meaning:"用較少的力氣得到更大成效" },
+  { word:"旁敲側擊", meaning:"不直接說明，而用間接方式試探" },
+  { word:"心滿意足", meaning:"非常滿足，沒有遺憾" },
+  { word:"循規蹈矩", meaning:"遵守規矩，不越軌" },
+  { word:"漸入佳境", meaning:"情況逐漸變好" },
+  { word:"無微不至", meaning:"照顧得非常周到" },
+  { word:"風調雨順", meaning:"氣候良好，農作豐收" },
+  { word:"暢所欲言", meaning:"毫無顧忌地說出想法" },
+  { word:"夜以繼日", meaning:"日夜不停地努力" },
+  { word:"有備無患", meaning:"事先準備就不會有禍患" },
+  { word:"緣木求魚", meaning:"方法錯誤，徒勞無功" },
+  { word:"處心積慮", meaning:"費盡心思地謀劃" },
+  { word:"心照不宣", meaning:"彼此明白但不說出口" },
+  { word:"雀屏中選", meaning:"被選中，獲得錄取" },
+  { word:"變本加厲", meaning:"情況比原來更加嚴重" },
+  { word:"寸步不離", meaning:"緊緊跟隨，不離開" },
+  { word:"揚眉吐氣", meaning:"擺脫壓力，感到痛快" },
+  { word:"勞民傷財", meaning:"浪費人力物力" },
+  { word:"方興未艾", meaning:"事物正在發展，尚未停止" },
+  { word:"期期艾艾", meaning:"說話結巴不順暢" },
+  { word:"順水推舟", meaning:"順勢而為，促成事情" },
+  { word:"一介不取", meaning:"非常清廉，不取不義之財" },
+  { word:"錦衣玉食", meaning:"生活奢華富裕" },
+  { word:"椎心泣血", meaning:"極度悲痛" },
+  { word:"隔靴搔癢", meaning:"做事不切實際，沒有效果" },
+  { word:"故步自封", meaning:"守舊不求進步" },
+  { word:"狹路相逢", meaning:"在困難情境中相遇" },
+  { word:"冤家路窄", meaning:"仇人偏偏常常相遇" },
+  { word:"不言而喻", meaning:"不用說也能明白" }
+];
+
+let score = 0;
+let current = 0;
+const questions = idioms.sort(() => 0.5 - Math.random()).slice(0, 20);
+
+function loadQuestion() {
+  const q = questions[current];
+  const container = document.getElementById("game");
+  container.innerHTML = "";
+
+  const box = document.createElement("div");
+  box.className = "question-box";
+
+  const title = document.createElement("h2");
+  title.textContent = `第 ${current + 1} 題（5分）：${q.word}`;
+  box.appendChild(title);
+
+  const optionsDiv = document.createElement("div");
+  optionsDiv.className = "options";
+
+  let options = [q.meaning];
+  while (options.length < 4) {
+    const m = idioms[Math.floor(Math.random() * idioms.length)].meaning;
+    if (!options.includes(m)) options.push(m);
+  }
+
+  options.sort(() => 0.5 - Math.random());
+
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.onclick = () => {
+      document.querySelectorAll("button").forEach(b => b.disabled = true);
+      if (opt === q.meaning) {
+        btn.classList.add("correct");
+        score += 5;
+      } else {
+        btn.classList.add("wrong");
+      }
+      setTimeout(() => {
+        current++;
+        if (current < questions.length) {
+          loadQuestion();
+        } else {
+          document.getElementById("game").innerHTML =
+            `<div class="question-box">
+              <h2>🎉 遊戲結束</h2>
+              <p>你的總分是：<strong>${score}</strong> 分</p>
+            </div>`;
+          document.getElementById("score").textContent = "";
+        }
+      }, 800);
+    };
+    optionsDiv.appendChild(btn);
+  });
+
+  box.appendChild(optionsDiv);
+  container.appendChild(box);
+  document.getElementById("score").textContent = `目前得分：${score} 分`;
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>

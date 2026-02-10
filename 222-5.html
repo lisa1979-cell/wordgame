@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>成語意思理解 PART 5</title>
+<style>
+  body {
+    font-family: "Noto Sans TC", sans-serif;
+    background: #f4f6fa;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  .question-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 760px;
+    margin: 20px auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .options button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 14px;
+    font-size: 17px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    background: #f9f9f9;
+  }
+  .options button:hover {
+    background: #e8f0ff;
+  }
+  .correct {
+    background-color: #c8f7c5 !important;
+  }
+  .wrong {
+    background-color: #f7c5c5 !important;
+  }
+  .score {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+
+<h1>成語意思理解 PART 5</h1>
+<div id="game"></div>
+<div class="score" id="score"></div>
+
+<script>
+const idioms = [
+  { word: "觸類旁通", meaning: "由一點推及其他相關事物" },
+  { word: "初出茅廬", meaning: "剛踏入社會，缺乏經驗" },
+  { word: "投機取巧", meaning: "用不正當或取巧的方法謀利" },
+  { word: "返老還童", meaning: "恢復年輕的狀態" },
+  { word: "耳濡目染", meaning: "經常聽到看到而受到影響" },
+  { word: "野心勃勃", meaning: "企圖心很強烈" },
+  { word: "珠圓玉潤", meaning: "聲音圓潤優美或文辭流暢" },
+  { word: "目光如豆", meaning: "見識短淺" },
+  { word: "雕蟲小技", meaning: "微不足道的小本事" },
+  { word: "狼心狗肺", meaning: "心腸狠毒，不知感恩" },
+  { word: "老成持重", meaning: "處事穩重、態度成熟" },
+  { word: "勢均力敵", meaning: "雙方實力相當" },
+  { word: "口誅筆伐", meaning: "用言語或文章嚴厲批評" },
+  { word: "匹夫之勇", meaning: "有勇無謀的衝動行為" },
+  { word: "拖泥帶水", meaning: "做事不乾脆" },
+  { word: "以德報怨", meaning: "用恩德回報仇怨" },
+  { word: "民不聊生", meaning: "人民生活困苦" },
+  { word: "勢如破竹", meaning: "進展迅速，毫無阻礙" },
+  { word: "虎視眈眈", meaning: "貪婪地伺機而動" },
+  { word: "星羅棋布", meaning: "分布廣泛而密集" },
+  { word: "義憤填膺", meaning: "內心充滿正義的憤怒" },
+  { word: "逃之夭夭", meaning: "迅速逃走" },
+  { word: "手足無措", meaning: "慌亂得不知如何是好" },
+  { word: "耳提面命", meaning: "懇切地反覆教誨" },
+  { word: "千頭萬緒", meaning: "事情繁多而複雜" },
+  { word: "抱薪救火", meaning: "方法錯誤，反而加重問題" },
+  { word: "明察秋毫", meaning: "觀察細微，判斷精確" },
+  { word: "神機妙算", meaning: "計畫周密，預測準確" },
+  { word: "胸有成竹", meaning: "事前已有周密計畫" },
+  { word: "天衣無縫", meaning: "完美無缺" },
+  { word: "事與願違", meaning: "結果與期望不符" },
+  { word: "難兄難弟", meaning: "境遇相同，同樣困難" },
+  { word: "精益求精", meaning: "已經很好仍追求更好" },
+  { word: "焦頭爛額", meaning: "忙亂狼狽的樣子" },
+  { word: "千方百計", meaning: "想盡各種辦法" },
+  { word: "指鹿為馬", meaning: "顛倒是非" },
+  { word: "功敗垂成", meaning: "事情快成功卻失敗" },
+  { word: "左顧右盼", meaning: "猶豫不決或心神不定" },
+  { word: "理直氣壯", meaning: "理由充分，態度自然強硬" },
+  { word: "身敗名裂", meaning: "名譽與地位完全喪失" },
+  { word: "標新立異", meaning: "刻意表現與眾不同" },
+  { word: "伯仲之間", meaning: "實力不相上下" },
+  { word: "得心應手", meaning: "做起來非常順手" },
+  { word: "各懷鬼胎", meaning: "各自暗藏不可告人的企圖" },
+  { word: "家喻戶曉", meaning: "人人都知道" },
+  { word: "盲人摸象", meaning: "只了解片面，無法掌握全貌" },
+  { word: "如釋重負", meaning: "壓力解除，感到輕鬆" },
+  { word: "出口成章", meaning: "說話流暢而有文采" },
+  { word: "朝令夕改", meaning: "命令反覆無常" },
+  { word: "洛陽紙貴", meaning: "作品廣受歡迎" },
+  { word: "塞翁失馬", meaning: "壞事可能變成好事" },
+  { word: "當仁不讓", meaning: "遇到應做的事主動承擔" },
+  { word: "有目共睹", meaning: "事實非常明顯" },
+  { word: "循循善誘", meaning: "耐心引導教導" },
+  { word: "推波助瀾", meaning: "助長事態發展" },
+  { word: "包羅萬象", meaning: "內容非常廣泛" },
+  { word: "千篇一律", meaning: "毫無變化" }
+];
+
+let score = 0;
+let current = 0;
+const questions = idioms.sort(() => 0.5 - Math.random()).slice(0, 20);
+
+function loadQuestion() {
+  const q = questions[current];
+  const container = document.getElementById("game");
+  container.innerHTML = "";
+
+  const box = document.createElement("div");
+  box.className = "question-box";
+
+  const title = document.createElement("h2");
+  title.textContent = `第 ${current + 1} 題（5分）：${q.word}`;
+  box.appendChild(title);
+
+  const optionsDiv = document.createElement("div");
+  optionsDiv.className = "options";
+
+  let options = [q.meaning];
+  while (options.length < 4) {
+    const m = idioms[Math.floor(Math.random() * idioms.length)].meaning;
+    if (!options.includes(m)) options.push(m);
+  }
+
+  options.sort(() => 0.5 - Math.random());
+
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.onclick = () => {
+      document.querySelectorAll("button").forEach(b => b.disabled = true);
+      if (opt === q.meaning) {
+        btn.classList.add("correct");
+        score += 5;
+      } else {
+        btn.classList.add("wrong");
+      }
+      setTimeout(() => {
+        current++;
+        if (current < questions.length) {
+          loadQuestion();
+        } else {
+          document.getElementById("game").innerHTML =
+            `<div class="question-box">
+              <h2>🎉 遊戲結束</h2>
+              <p>你的總分是：<strong>${score}</strong> 分</p>
+            </div>`;
+          document.getElementById("score").textContent = "";
+        }
+      }, 800);
+    };
+    optionsDiv.appendChild(btn);
+  });
+
+  box.appendChild(optionsDiv);
+  container.appendChild(box);
+  document.getElementById("score").textContent = `目前得分：${score} 分`;
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>

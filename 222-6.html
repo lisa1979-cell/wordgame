@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>成語意思理解 PART 6</title>
+<style>
+  body {
+    font-family: "Noto Sans TC", sans-serif;
+    background: #f4f6fa;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  .question-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 760px;
+    margin: 20px auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .options button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 14px;
+    font-size: 17px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    background: #f9f9f9;
+  }
+  .options button:hover {
+    background: #e8f0ff;
+  }
+  .correct {
+    background-color: #c8f7c5 !important;
+  }
+  .wrong {
+    background-color: #f7c5c5 !important;
+  }
+  .score {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+
+<h1>成語意思理解 PART 6</h1>
+<div id="game"></div>
+<div class="score" id="score"></div>
+
+<script>
+const idioms = [
+  { word:"洗耳恭聽", meaning:"專心而恭敬地聽別人說話" },
+  { word:"耳目一新", meaning:"感到非常新鮮、煥然一新" },
+  { word:"回心轉意", meaning:"改變原來的想法或態度" },
+  { word:"要言不煩", meaning:"說話簡要，不繁瑣" },
+  { word:"心煩意亂", meaning:"心情煩躁，思緒混亂" },
+  { word:"赴湯蹈火", meaning:"不畏艱難危險，全力以赴" },
+  { word:"力爭上游", meaning:"努力向上，爭取進步" },
+  { word:"以身作則", meaning:"用自己的行動作為榜樣" },
+  { word:"捨本逐末", meaning:"放棄根本，只追求表面" },
+  { word:"無與倫比", meaning:"沒有任何事物可以相比" },
+  { word:"五體投地", meaning:"非常敬佩、佩服" },
+  { word:"耳熟能詳", meaning:"聽得多而非常熟悉" },
+  { word:"對牛彈琴", meaning:"說話不看對象，白費力氣" },
+  { word:"借題發揮", meaning:"藉著某個話題發表意見" },
+  { word:"耳提面命", meaning:"再三叮嚀、當面教導" },
+  { word:"精衛填海", meaning:"意志堅定，不怕困難" },
+  { word:"良藥苦口", meaning:"忠言逆耳但對人有幫助" },
+  { word:"天翻地覆", meaning:"變化非常巨大" },
+  { word:"懸崖勒馬", meaning:"及時醒悟，停止錯誤行為" },
+  { word:"兢兢業業", meaning:"做事小心謹慎" },
+  { word:"雞犬不寧", meaning:"吵鬧不安，不得安寧" },
+  { word:"孤注一擲", meaning:"把全部希望押在一次行動上" },
+  { word:"盡善盡美", meaning:"完美無缺" },
+  { word:"秀外慧中", meaning:"外表秀麗，內心聰慧" },
+  { word:"豁然開朗", meaning:"突然明白，心情開朗" },
+  { word:"登峰造極", meaning:"達到最高境界" },
+  { word:"虛懷若谷", meaning:"為人謙虛" },
+  { word:"妄自菲薄", meaning:"看輕自己，缺乏自信" },
+  { word:"沾沾自喜", meaning:"自以為得意而驕傲" },
+  { word:"心心相印", meaning:"彼此心意相通" },
+  { word:"義不容辭", meaning:"道義上不能推辭" },
+  { word:"壽比南山", meaning:"祝人長壽" },
+  { word:"同舟共濟", meaning:"同心協力，共度困難" },
+  { word:"器宇軒昂", meaning:"氣度不凡，精神飽滿" },
+  { word:"震耳欲聾", meaning:"聲音非常大" },
+  { word:"聚沙成塔", meaning:"積少成多" },
+  { word:"否極泰來", meaning:"壞運到了盡頭，好運來臨" },
+  { word:"門可羅雀", meaning:"門庭冷落，來客稀少" },
+  { word:"勢均力敵", meaning:"雙方實力相當" }
+];
+
+let score = 0;
+let current = 0;
+const questions = idioms.sort(() => 0.5 - Math.random()).slice(0, 20);
+
+function loadQuestion() {
+  const q = questions[current];
+  const container = document.getElementById("game");
+  container.innerHTML = "";
+
+  const box = document.createElement("div");
+  box.className = "question-box";
+
+  const title = document.createElement("h2");
+  title.textContent = `第 ${current + 1} 題（5分）：${q.word}`;
+  box.appendChild(title);
+
+  const optionsDiv = document.createElement("div");
+  optionsDiv.className = "options";
+
+  let options = [q.meaning];
+  while (options.length < 4) {
+    const m = idioms[Math.floor(Math.random() * idioms.length)].meaning;
+    if (!options.includes(m)) options.push(m);
+  }
+
+  options.sort(() => 0.5 - Math.random());
+
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.onclick = () => {
+      document.querySelectorAll("button").forEach(b => b.disabled = true);
+      if (opt === q.meaning) {
+        btn.classList.add("correct");
+        score += 5;
+      } else {
+        btn.classList.add("wrong");
+      }
+      setTimeout(() => {
+        current++;
+        if (current < questions.length) {
+          loadQuestion();
+        } else {
+          document.getElementById("game").innerHTML =
+            `<div class="question-box">
+              <h2>🎉 遊戲結束</h2>
+              <p>你的總分是：<strong>${score}</strong> 分</p>
+            </div>`;
+          document.getElementById("score").textContent = "";
+        }
+      }, 800);
+    };
+    optionsDiv.appendChild(btn);
+  });
+
+  box.appendChild(optionsDiv);
+  container.appendChild(box);
+  document.getElementById("score").textContent = `目前得分：${score} 分`;
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>

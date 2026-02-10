@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>成語意思理解 PART 10</title>
+<style>
+  body {
+    font-family: "Noto Sans TC", sans-serif;
+    background: #f4f6fa;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  .question-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 760px;
+    margin: 20px auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .options button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 14px;
+    font-size: 17px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    background: #f9f9f9;
+  }
+  .options button:hover {
+    background: #e8f0ff;
+  }
+  .correct {
+    background-color: #c8f7c5 !important;
+  }
+  .wrong {
+    background-color: #f7c5c5 !important;
+  }
+  .score {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+
+<h1>成語意思理解 PART 10</h1>
+<div id="game"></div>
+<div class="score" id="score"></div>
+
+<script>
+const words = [
+  {    word: "巧奪天工",meaning: "形容技藝精巧，彷彿勝過天然造化"  },
+  {    word: "屈指可數",    meaning: "數量很少，一隻手的手指就能數完"  },
+  {    word: "以偏概全",    meaning: "只憑片面的情況就下整體的結論"  },
+  {    word: "潛移默化",    meaning: "在不知不覺中受到影響而改變"  },
+  {    word: "勾心鬥角",    meaning: "彼此算計、明爭暗鬥"  },
+  {    word: "腰纏萬貫",    meaning: "形容非常富有"  },
+  {    word: "冰消瓦解",    meaning: "像冰融化、瓦碎裂，比喻完全崩潰"  },
+  {    word: "口蜜腹劍",    meaning: "嘴上甜言蜜語，內心卻陰險狠毒"  },
+  {    word: "自命不凡",    meaning: "自以為很了不起，看不起別人"  },
+  {    word: "昭然若揭",    meaning: "事情非常明顯，清楚可見"  },
+  {    word: "別出心裁",    meaning: "構思巧妙，與眾不同"  },
+  {    word: "脫穎而出",    meaning: "才能表現突出，超越他人"  },
+  {    word: "隔靴搔癢",    meaning: "做事無法切中要點，沒有效果"  },
+  {    word: "一言九鼎",    meaning: "說話極有分量，很有信用"  },
+  {    word: "淋漓盡致",    meaning: "表現得非常充分、透徹"  },
+  {    word: "相得益彰",    meaning: "彼此配合得好，使優點更加突出"  },
+  {    word: "相濡以沫",    meaning: "在困境中彼此扶持、互相幫助"  },
+  {    word: "粗茶淡飯",    meaning: "形容生活簡樸"  },
+  {    word: "魚目混珠",    meaning: "用假的冒充真的"  },
+  {    word: "飛黃騰達",    meaning: "仕途順利，地位迅速提升"  },
+  {    word: "顛沛流離",    meaning: "生活困苦，到處流浪"  },
+  {    word: "赴湯蹈火",    meaning: "不顧危險，勇於犧牲"  },
+  {    word: "仰人鼻息",    meaning: "完全依賴他人，沒有自主權"  },
+  {    word: "弄巧成拙",    meaning: "想耍聰明，結果反而把事情搞砸"  },
+  {    word: "比比皆是",    meaning: "到處都是，非常常見"  },
+  {    word: "冷嘲熱諷",    meaning: "用尖酸刻薄的話諷刺他人"  },
+  {    word: "虛有其表",    meaning: "外表好看，實際上沒有真本事"  },
+  {    word: "旗開得勝",    meaning: "一開始就取得勝利"  },
+  {    word: "反求諸己",    meaning: "先檢討自己，而不是怪別人"  },
+  {    word: "孜孜不倦",    meaning: "勤奮努力，毫不懈怠"  }];
+
+let score = 0;
+let current = 0;
+const questions = words.sort(() => 0.5 - Math.random()).slice(0, 33);
+
+function loadQuestion() {
+  const q = questions[current];
+  const container = document.getElementById("game");
+  container.innerHTML = "";
+
+  const box = document.createElement("div");
+  box.className = "question-box";
+
+  const title = document.createElement("h2");
+  title.textContent = `第 ${current + 1} 題（3分）：${q.word}`;
+  box.appendChild(title);
+
+  const optionsDiv = document.createElement("div");
+  optionsDiv.className = "options";
+
+  let options = [q.meaning];
+  while (options.length < 4) {
+    const m = words[Math.floor(Math.random() * words.length)].meaning;
+    if (!options.includes(m)) options.push(m);
+  }
+
+  options.sort(() => 0.5 - Math.random());
+
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.onclick = () => {
+      document.querySelectorAll("button").forEach(b => b.disabled = true);
+      if (opt === q.meaning) {
+        btn.classList.add("correct");
+        score += 3;
+      } else {
+        btn.classList.add("wrong");
+      }
+      setTimeout(() => {
+        current++;
+        if (current < questions.length) {
+          loadQuestion();
+        } else {
+          document.getElementById("game").innerHTML =
+            `<div class="question-box">
+              <h2>🎉 遊戲結束</h2>
+              <p>你的總分是：<strong>${score}</strong> 分</p>
+            </div>`;
+          document.getElementById("score").textContent = "";
+        }
+      }, 800);
+    };
+    optionsDiv.appendChild(btn);
+  });
+
+  box.appendChild(optionsDiv);
+  container.appendChild(box);
+  document.getElementById("score").textContent = `目前得分：${score} 分`;
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>

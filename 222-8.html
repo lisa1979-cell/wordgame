@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>成語意思理解 PART 8</title>
+<style>
+  body {
+    font-family: "Noto Sans TC", sans-serif;
+    background: #f4f6fa;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  .question-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 760px;
+    margin: 20px auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .options button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 14px;
+    font-size: 17px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    background: #f9f9f9;
+  }
+  .options button:hover {
+    background: #e8f0ff;
+  }
+  .correct {
+    background-color: #c8f7c5 !important;
+  }
+  .wrong {
+    background-color: #f7c5c5 !important;
+  }
+  .score {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+
+<h1>成語意思理解 PART 8</h1>
+<div id="game"></div>
+<div class="score" id="score"></div>
+
+<script>
+const idioms = [
+  {word:"蛛絲馬跡", meaning:"極細微的線索"},
+  {word:"物換星移", meaning:"時間流逝，景物改變"},
+  {word:"盤根錯節", meaning:"關係複雜難解"},
+  {word:"淋漓盡致", meaning:"表現得非常充分"},
+  {word:"扶老攜幼", meaning:"照顧老人與孩子"},
+  {word:"眾望所歸", meaning:"深得大家信任與支持"},
+  {word:"易如反掌", meaning:"事情非常容易"},
+  {word:"家徒四壁", meaning:"家境非常貧困"},
+  {word:"舉棋不定", meaning:"猶豫不決"},
+  {word:"絕無僅有", meaning:"非常稀少，獨一無二"},
+  {word:"臥薪嘗膽", meaning:"忍辱負重，立志報仇"},
+  {word:"牛刀小試", meaning:"以大才做小事"},
+  {word:"不著邊際", meaning:"言談空泛不切實際"},
+  {word:"集思廣益", meaning:"集合眾人意見"},
+  {word:"一落千丈", meaning:"情況急劇下降"},
+  {word:"不遺餘力", meaning:"竭盡全力"},
+  {word:"滄海遺珠", meaning:"被埋沒的人才"},
+  {word:"骨瘦如柴", meaning:"非常消瘦"},
+  {word:"雪上加霜", meaning:"情況更加惡化"},
+  {word:"不置可否", meaning:"態度模糊不表意見"},
+  {word:"聲淚俱下", meaning:"說話時又哭又喊"},
+  {word:"才高八斗", meaning:"才學非常高"},
+  {word:"不修邊幅", meaning:"外表不整潔"},
+  {word:"並駕齊驅", meaning:"實力不相上下"},
+  {word:"參差不齊", meaning:"高低不一不整齊"},
+  {word:"泰山壓卵", meaning:"力量懸殊"},
+  {word:"借花獻佛", meaning:"借他人之物做人情"},
+  {word:"福至心靈", meaning:"好運來臨而突然聰明"},
+  {word:"因材施教", meaning:"依學生能力施教"},
+  {word:"打退堂鼓", meaning:"中途放棄"},
+  {word:"不求甚解", meaning:"只求大概了解"},
+  {word:"風雨無阻", meaning:"不受任何阻礙"},
+  {word:"一視同仁", meaning:"公平對待"},
+  {word:"川流不息", meaning:"人或車輛往來不斷"},
+  {word:"吉人天相", meaning:"好人得上天保佑"},
+  {word:"額手稱慶", meaning:"非常高興地慶祝"},
+  {word:"自慚形穢", meaning:"因自卑而羞愧"},
+  {word:"防微杜漸", meaning:"防止小錯釀成大錯"},
+  {word:"不同凡響", meaning:"表現非常出色"},
+  {word:"背水一戰", meaning:"下定決心拼死一搏"},
+  {word:"困獸猶鬥", meaning:"走投無路仍奮力抵抗"},
+  {word:"躍躍欲試", meaning:"迫不及待想嘗試"},
+  {word:"姍姍來遲", meaning:"來得很慢"},
+  {word:"弄巧成拙", meaning:"聰明反被聰明誤"},
+  {word:"拋磚引玉", meaning:"引出別人更好的意見"},
+  {word:"孤陋寡聞", meaning:"見識狹隘"},
+  {word:"居心叵測", meaning:"心懷不良企圖"},
+  {word:"兵荒馬亂", meaning:"社會混亂動盪"},
+  {word:"雙管齊下", meaning:"兩種方法同時進行"},
+  {word:"無妄之災", meaning:"無故遭受災禍"},
+  {word:"趾高氣揚", meaning:"態度傲慢"},
+  {word:"束手無策", meaning:"毫無辦法"},
+  {word:"直搗黃龍", meaning:"直接攻擊核心"},
+  {word:"拍案叫絕", meaning:"極力讚賞"},
+  {word:"繁文縟節", meaning:"過多繁瑣的規定"},
+  {word:"康莊大道", meaning:"光明平坦的前途"},
+  {word:"克勤克儉", meaning:"勤勞又節儉"},
+  {word:"坐井觀天", meaning:"見識狹小"},
+  {word:"亭亭玉立", meaning:"姿態高雅挺立"},
+  {word:"蒸蒸日上", meaning:"情況持續進步"}];
+
+let score = 0;
+let current = 0;
+const questions = idioms.sort(() => 0.5 - Math.random()).slice(0, 33);
+
+function loadQuestion() {
+  const q = questions[current];
+  const container = document.getElementById("game");
+  container.innerHTML = "";
+
+  const box = document.createElement("div");
+  box.className = "question-box";
+
+  const title = document.createElement("h2");
+  title.textContent = `第 ${current + 1} 題（3分）：${q.word}`;
+  box.appendChild(title);
+
+  const optionsDiv = document.createElement("div");
+  optionsDiv.className = "options";
+
+  let options = [q.meaning];
+  while (options.length < 4) {
+    const m = idioms[Math.floor(Math.random() * idioms.length)].meaning;
+    if (!options.includes(m)) options.push(m);
+  }
+
+  options.sort(() => 0.5 - Math.random());
+
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.onclick = () => {
+      document.querySelectorAll("button").forEach(b => b.disabled = true);
+      if (opt === q.meaning) {
+        btn.classList.add("correct");
+        score += 3;
+      } else {
+        btn.classList.add("wrong");
+      }
+      setTimeout(() => {
+        current++;
+        if (current < questions.length) {
+          loadQuestion();
+        } else {
+          document.getElementById("game").innerHTML =
+            `<div class="question-box">
+              <h2>🎉 遊戲結束</h2>
+              <p>你的總分是：<strong>${score}</strong> 分</p>
+            </div>`;
+          document.getElementById("score").textContent = "";
+        }
+      }, 800);
+    };
+    optionsDiv.appendChild(btn);
+  });
+
+  box.appendChild(optionsDiv);
+  container.appendChild(box);
+  document.getElementById("score").textContent = `目前得分：${score} 分`;
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>
