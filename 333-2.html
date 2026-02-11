@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>成語生活應用 PART 2</title>
+<style>
+  body {
+    font-family: "Noto Sans TC", sans-serif;
+    background: #f4f6f8;
+    padding: 20px;
+  }
+  .card {
+    background: #fff;
+    padding: 25px;
+    max-width: 650px;
+    margin: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  h2 { text-align: center; }
+  .status {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 16px;
+  }
+  .sentence {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+  button.option {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    font-size: 18px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+  }
+  button.option:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  #nextBtn {
+    margin-top: 20px;
+    padding: 12px;
+    width: 100%;
+    font-size: 18px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>成語生活應用 PART 2</h2>
+  <div class="status" id="status"></div>
+  <div class="sentence" id="sentence"></div>
+  <div id="options"></div>
+  <button id="nextBtn" onclick="nextQuestion()">下一題</button>
+</div>
+
+<script>
+
+const allQuestions = [
+
+{ sentence:"他只顧著裝飾封面，卻忽略內容品質，真是＿＿＿＿。", answer:"本末倒置" },
+{ sentence:"他總認為自己的想法最正確，從不聽別人意見，實在＿＿＿＿。", answer:"自以為是" },
+{ sentence:"這顆古董寶石十分稀有，堪稱＿＿＿＿。", answer:"價值連城" },
+{ sentence:"比賽快開始了，他臨時找不到號碼牌，急得＿＿＿＿。", answer:"手忙腳亂" },
+{ sentence:"世界上沒有真正＿＿＿＿的人，每個人都有缺點。", answer:"十全十美" },
+{ sentence:"夏天跑完操場三圈，他已經＿＿＿＿。", answer:"汗流浹背" },
+{ sentence:"他為了工作，年輕時就＿＿＿＿到外地生活。", answer:"離鄉背井" },
+{ sentence:"他做事小心謹慎，一有＿＿＿＿就會立刻注意。", answer:"風吹草動" },
+{ sentence:"原本只是小問題，你卻多說幾句，反而＿＿＿＿。", answer:"節外生枝" },
+{ sentence:"明明知道違反規定會被處罰，他卻＿＿＿＿。", answer:"明知故犯" },
+{ sentence:"他說話太直接，常常因為＿＿＿＿而得罪人。", answer:"心直口快" },
+{ sentence:"比賽前教練用想像勝利的方法鼓舞士氣，這有點像＿＿＿＿。", answer:"望梅止渴" },
+{ sentence:"大家只看到事情的一部分就下結論，根本是＿＿＿＿。", answer:"瞎子摸象" },
+{ sentence:"他寫作業太＿＿＿＿，錯字特別多。", answer:"粗枝大葉" },
+{ sentence:"他前後說法不同，讓人覺得＿＿＿＿。", answer:"自相矛盾" },
+{ sentence:"討論時大家＿＿＿＿，教室變得非常吵。", answer:"七嘴八舌" },
+{ sentence:"每天存一點錢，久而久之就能＿＿＿＿。", answer:"聚沙成塔" },
+{ sentence:"聽到比賽得冠軍的消息，全班都＿＿＿＿。", answer:"歡欣鼓舞" },
+{ sentence:"看到老師稱讚自己，他立刻＿＿＿＿。", answer:"笑逐顏開" },
+{ sentence:"郊遊當天陽光普照，風景秀麗，大家玩得＿＿＿＿。", answer:"興高采烈" },
+{ sentence:"新校舍工程順利進行，完工之日＿＿＿＿。", answer:"指日可待" },
+{ sentence:"近年來社區發展迅速，景象＿＿＿＿。", answer:"欣欣向榮" },
+{ sentence:"公園花草整理得很好，看起來十分＿＿＿＿。", answer:"賞心悅目" },
+{ sentence:"媽媽對生病的孩子照顧得＿＿＿＿。", answer:"無微不至" },
+{ sentence:"事情既然已經解釋清楚，他便＿＿＿＿地離開。", answer:"心安理得" },
+{ sentence:"為了提高效率，他決定＿＿＿＿一起處理問題。", answer:"雙管齊下" },
+{ sentence:"聽到可以去旅行，他＿＿＿＿地收拾行李。", answer:"迫不及待" },
+{ sentence:"他的書桌整理得＿＿＿＿。", answer:"井井有條" },
+{ sentence:"學生對那位偉大的科學家＿＿＿＿。", answer:"五體投地" },
+{ sentence:"只是一點小擦傷，不必＿＿＿＿。", answer:"大驚小怪" },
+{ sentence:"醫生提醒的話雖然難聽，但正是＿＿＿＿。", answer:"良藥苦口" },
+{ sentence:"暴風雨過後，海面恢復＿＿＿＿。", answer:"風平浪靜" },
+{ sentence:"這個山中小村莊景色優美，如同＿＿＿＿。", answer:"世外桃源" },
+{ sentence:"兩人興趣相同，真是＿＿＿＿。", answer:"志同道合" },
+{ sentence:"大家在終點線前＿＿＿＿地加速衝刺。", answer:"不約而同" },
+{ sentence:"這次比賽的表現只能算＿＿＿＿，還有進步空間。", answer:"差強人意" },
+{ sentence:"在困難時仍願意幫助別人，實在＿＿＿＿。", answer:"難能可貴" },
+{ sentence:"春天花園裡＿＿＿＿。", answer:"萬紫千紅" },
+{ sentence:"他答應朋友保守祕密，一直＿＿＿＿。", answer:"守口如瓶" },
+{ sentence:"考試時他＿＿＿＿，完全不受干擾。", answer:"聚精會神" },
+{ sentence:"球隊終於贏球，大家＿＿＿＿。", answer:"揚眉吐氣" },
+{ sentence:"他生活簡單，只求＿＿＿＿。", answer:"粗茶淡飯" },
+{ sentence:"為了成功，他＿＿＿＿想辦法。", answer:"千方百計" },
+{ sentence:"做事應該＿＿＿＿，不要投機取巧。", answer:"腳踏實地" },
+{ sentence:"他射箭技術高超，幾乎＿＿＿＿。", answer:"百發百中" },
+{ sentence:"雙方實力相當，最終＿＿＿＿。", answer:"平分秋色" },
+{ sentence:"已經很完美了，再修改反而是＿＿＿＿。", answer:"畫蛇添足" },
+{ sentence:"大家＿＿＿＿完成這項任務。", answer:"同心協力" }
+
+];
+
+const questions = allQuestions.sort(() => 0.5 - Math.random()).slice(0, 20);
+
+let current = 0;
+let score = 0;
+
+function loadQuestion() {
+  const q = questions[current];
+  document.getElementById("status").textContent =
+    `第 ${current + 1} 題 / ${questions.length} 題｜目前得分：${score} 分`;
+  document.getElementById("sentence").textContent = q.sentence;
+
+  const optionsDiv = document.getElementById("options");
+  optionsDiv.innerHTML = "";
+
+  let options = [q.answer];
+  while (options.length < 4) {
+    const random = allQuestions[Math.floor(Math.random() * allQuestions.length)].answer;
+    if (!options.includes(random)) options.push(random);
+  }
+  options.sort(() => 0.5 - Math.random());
+
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.className = "option";
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(btn, q.answer);
+    optionsDiv.appendChild(btn);
+  });
+
+  document.getElementById("nextBtn").style.display = "none";
+}
+
+function selectAnswer(button, answer) {
+  const buttons = document.querySelectorAll(".option");
+  buttons.forEach(b => b.disabled = true);
+
+  if (button.textContent === answer) {
+    score += 5;
+    button.style.backgroundColor = "#c8f7c5";
+  } else {
+    button.style.backgroundColor = "#f7c5c5";
+  }
+  document.getElementById("nextBtn").style.display = "block";
+}
+
+function nextQuestion() {
+  current++;
+  if (current < questions.length) {
+    loadQuestion();
+  } else {
+    document.querySelector(".card").innerHTML =
+      `<h2>作答完成 🎉</h2>
+       <p style="text-align:center;font-size:20px;">
+       總分：${score} / 100 分
+       </p>`;
+  }
+}
+
+loadQuestion();
+
+</script>
+</body>
+</html>

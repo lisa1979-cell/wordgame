@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>成語生活應用 PART 1</title>
+<style>
+  body {
+    font-family: "Noto Sans TC", sans-serif;
+    background: #f7f7f7;
+    padding: 20px;
+  }
+  .card {
+    background: #fff;
+    padding: 25px;
+    max-width: 600px;
+    margin: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  h2 {
+    text-align: center;
+  }
+  .status {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 16px;
+  }
+  .sentence {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+  button.option {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    font-size: 18px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+  }
+  button.option:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  #nextBtn {
+    margin-top: 20px;
+    padding: 12px;
+    width: 100%;
+    font-size: 18px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>成語生活應用 PART 1</h2>
+  <div class="status" id="status"></div>
+  <div class="sentence" id="sentence"></div>
+  <div id="options"></div>
+  <button id="nextBtn" onclick="nextQuestion()">下一題</button>
+</div>
+
+<script>
+const allQuestions = [
+  {
+    sentence: "聽到自己努力準備的比賽終於得獎，他忍不住＿＿＿＿，一邊跳一邊拍手。",
+    answer: "手舞足蹈"
+  },
+  {
+    sentence: "為了在班級成績上進步，他每天自我要求更高，努力＿＿＿＿。",
+    answer: "力爭上游"
+  },
+  {
+    sentence: "他嘴上答應幫忙，實際上卻什麼都沒做，讓人覺得他＿＿＿＿。",
+    answer: "口是心非"
+  },
+  {
+    sentence: "跨年夜的夜市擠滿了人，現場＿＿＿＿，連走路都很困難。",
+    answer: "人山人海"
+  },
+  {
+    sentence: "這位里長處理事情不為自己著想，大家都稱讚他＿＿＿＿。",
+    answer: "大公無私"
+  },
+  {
+    sentence: "經過多次討論，大家終於找到對雙方都好的方法，真是＿＿＿＿。",
+    answer: "兩全其美"
+  },
+  {
+    sentence: "他在專家面前教別人專業技巧，簡直是＿＿＿＿。",
+    answer: "班門弄斧"
+  },
+  {
+    sentence: "這兩幅畫在構圖和顏色上非常接近，看起來＿＿＿＿。",
+    answer: "大同小異"
+  },
+  {
+    sentence: "老師處理班級事情時態度公平，對錯＿＿＿＿。",
+    answer: "黑白分明"
+  },
+  {
+    sentence: "下課後，同學們聊著未來的夢想，話題變得＿＿＿＿。",
+    answer: "海闊天空"
+  },
+  {
+    sentence: "春天來了，校園裡＿＿＿＿，讓人感覺心情很好。",
+    answer: "鳥語花香"
+  },
+  {
+    sentence: "依照規定完成手續後，他的參賽資格變得＿＿＿＿。",
+    answer: "名正言順"
+  },
+  {
+    sentence: "新的一年開始了，老師鼓勵大家以＿＿＿＿的心情迎接挑戰。",
+    answer: "一元復始"
+  },
+  {
+    sentence: "聽到下課鐘聲一響，學生們＿＿＿＿地衝出教室。",
+    answer: "爭先恐後"
+  },
+  {
+    sentence: "第一次見面就聊得很開心，兩人彷彿＿＿＿＿。",
+    answer: "一見如故"
+  },
+  {
+    sentence: "老師提醒大家準備雨具，以備＿＿＿＿。",
+    answer: "不時之需"
+  },
+  {
+    sentence: "這對好朋友每天聊天，彼此＿＿＿＿，沒有祕密。",
+    answer: "無話不談"
+  },
+  {
+    sentence: "他做事情照著老師的步驟來，整個過程＿＿＿＿。",
+    answer: "按部就班"
+  },
+  {
+    sentence: "沒有和家人討論，他就自己決定參加比賽，真是＿＿＿＿。",
+    answer: "自作主張"
+  },
+  {
+    sentence: "他遵守班級規定，從不惹麻煩，是個＿＿＿＿的學生。",
+    answer: "安分守己"
+  }
+];
+
+// 隨機選 20 題
+const questions = allQuestions.sort(() => 0.5 - Math.random()).slice(0, 20);
+
+let current = 0;
+let score = 0;
+
+function loadQuestion() {
+  const q = questions[current];
+  document.getElementById("status").textContent =
+    `第 ${current + 1} 題 / ${questions.length} 題｜目前得分：${score} 分`;
+  document.getElementById("sentence").textContent = q.sentence;
+
+  const optionsDiv = document.getElementById("options");
+  optionsDiv.innerHTML = "";
+
+  let options = [q.answer];
+  while (options.length < 4) {
+    const random = allQuestions[Math.floor(Math.random() * allQuestions.length)].answer;
+    if (!options.includes(random)) options.push(random);
+  }
+  options.sort(() => 0.5 - Math.random());
+
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.className = "option";
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(btn, q.answer);
+    optionsDiv.appendChild(btn);
+  });
+
+  document.getElementById("nextBtn").style.display = "none";
+}
+
+function selectAnswer(button, answer) {
+  const buttons = document.querySelectorAll(".option");
+  buttons.forEach(b => b.disabled = true);
+
+  if (button.textContent === answer) {
+    score += 5;
+    button.style.backgroundColor = "#c8f7c5";
+  } else {
+    button.style.backgroundColor = "#f7c5c5";
+  }
+  document.getElementById("nextBtn").style.display = "block";
+}
+
+function nextQuestion() {
+  current++;
+  if (current < questions.length) {
+    loadQuestion();
+  } else {
+    document.querySelector(".card").innerHTML =
+      `<h2>作答完成 🎉</h2>
+       <p style="text-align:center;font-size:20px;">
+       總分：${score} / 100 分
+       </p>`;
+  }
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>
