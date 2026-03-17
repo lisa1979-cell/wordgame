@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>成語生活應用 part 8</title>
+<style>
+body{
+    font-family:"Microsoft JhengHei",sans-serif;
+    background:#eef4ff;
+    text-align:center;
+    padding:20px;
+}
+.container{
+    background:white;
+    max-width:900px;
+    margin:auto;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.1);
+}
+h1{font-size:30px;margin-bottom:10px;}
+#progress{
+    font-size:20px;
+    margin-bottom:10px;
+}
+#scoreBoard{
+    font-size:22px;
+    color:#d35400;
+    margin-bottom:20px;
+}
+#question{
+    font-size:22px;
+    margin:25px 0;
+}
+button{
+    display:block;
+    width:90%;
+    margin:10px auto;
+    padding:15px;
+    font-size:20px;
+    border:none;
+    border-radius:12px;
+    background:#4a90e2;
+    color:white;
+    cursor:pointer;
+}
+button:hover{background:#357abd;}
+button:disabled{
+    background:#cccccc;
+    cursor:not-allowed;
+}
+#result{
+    font-size:20px;
+    margin-top:15px;
+    min-height:30px;
+}
+#finalScreen{
+    display:none;
+}
+.finalScore{
+    font-size:28px;
+    color:#e74c3c;
+    margin:20px 0;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>🌟 成語生活應用 part 8</h1>
+
+<div id="progress"></div>
+<div id="scoreBoard">目前總分：0 分</div>
+
+<div id="gameArea">
+    <div id="question"></div>
+    <div id="options"></div>
+    <div id="result"></div>
+</div>
+
+<div id="finalScreen">
+    <h2>🎉 測驗完成！</h2>
+    <div class="finalScore" id="finalScoreText"></div>
+    <div id="comment"></div>
+    <br>
+    <button onclick="location.reload()">🔄 再玩一次</button>
+</div>
+
+</div>
+
+<script>
+
+// ===== 題庫（口語生活版） =====
+const questionBank = [
+
+{q:"警察透過現場留下的________，成功找出嫌疑人。",a:"蛛絲馬跡"},
+{q:"多年後再回到母校，感覺真是________。",a:"物換星移"},
+{q:"這個問題牽涉太多因素，情況非常________。",a:"盤根錯節"},
+{q:"他把故事講得________，大家都聽得入迷。",a:"淋漓盡致"},
+{q:"活動當天，大家________一起參加，非常熱鬧。",a:"扶老攜幼"},
+{q:"他實力最強，這次得獎可說是________。",a:"眾望所歸"},
+{q:"這題對他來說簡單得________。",a:"易如反掌"},
+{q:"他家裡非常窮，可以說是________。",a:"家徒四壁"},
+{q:"面對選擇，他一直________，拿不定主意。",a:"舉棋不定"},
+{q:"這種現象非常少見，幾乎是________。",a:"絕無僅有"},
+{q:"為了成功，他每天努力練習，就像________一樣。",a:"臥薪嘗膽"},
+{q:"這次比賽只是讓他________，小試身手。",a:"牛刀小試"},
+{q:"他講話內容________，讓人聽不懂重點。",a:"不著邊際"},
+{q:"老師鼓勵大家________，一起想解決方法。",a:"集思廣益"},
+{q:"成績突然________，讓他很難過。",a:"一落千丈"},
+{q:"為了完成任務，他________全力以赴。",a:"不遺餘力"},
+{q:"這本好書一直沒人發現，真是________。",a:"滄海遺珠"},
+{q:"他長期營養不良，看起來________。",a:"骨瘦如柴"},
+{q:"原本就很慘，結果又下雨，真是________。",a:"雪上加霜"},
+{q:"老師對這件事________，沒有表達意見。",a:"不置可否"},
+{q:"他說到難過的地方，忍不住________。",a:"聲淚俱下"},
+{q:"他文筆很好，可以說是________。",a:"才高八斗"},
+{q:"他平常不太整理外表，看起來有點________。",a:"不修邊幅"},
+{q:"兩隊實力相當，可以說是________。",a:"並駕齊驅"},
+{q:"大家作品水準________，差距很大。",a:"參差不齊"},
+{q:"這種對抗就像________，根本沒有勝算。",a:"泰山壓卵"},
+{q:"他只是拿別人的東西送人，根本是________。",a:"借花獻佛"},
+{q:"比賽時他突然靈感來了，真是________。",a:"福至心靈"},
+{q:"老師會依學生程度________來教學。",a:"因材施教"},
+{q:"還沒開始就想放棄，根本是在________。",a:"打退堂鼓"},
+{q:"他讀書只是大概看看，有點________。",a:"不求甚解"},
+{q:"不管天氣如何，他都________去練習。",a:"風雨無阻"},
+{q:"老師對每個學生都________，沒有偏心。",a:"一視同仁"},
+{q:"馬路上的車子________，非常繁忙。",a:"川流不息"},
+{q:"他每次遇到危險都能平安度過，真是________。",a:"吉人天相"},
+{q:"聽到好消息，大家都________。",a:"額手稱慶"},
+{q:"看到別人那麼優秀，他不禁________。",a:"自慚形穢"},
+{q:"問題要及早處理，才能________。",a:"防微杜漸"},
+{q:"這場表演非常精彩，可以說________。",a:"不同凡響"},
+{q:"這場比賽他決定________全力一拼。",a:"背水一戰"},
+{q:"即使失敗，他還是________繼續努力。",a:"困獸猶鬥"},
+{q:"比賽前，他顯得________想趕快上場。",a:"躍躍欲試"},
+{q:"他總是________最後才到。",a:"姍姍來遲"},
+{q:"原本想幫忙，結果卻________。",a:"弄巧成拙"},
+{q:"他只是先提出想法，算是________。",a:"拋磚引玉"},
+{q:"因為見識不多，他顯得有些________。",a:"孤陋寡聞"},
+{q:"他表面幫忙，其實________不安好心。",a:"居心叵測"},
+{q:"戰爭時期，百姓生活________。",a:"兵荒馬亂"},
+{q:"這件事我們可以________同時進行。",a:"雙管齊下"},
+{q:"突然發生的意外，真是________。",a:"無妄之災"},
+{q:"他一得意就變得________。",a:"趾高氣揚"},
+{q:"遇到困難時，他完全________不知道怎麼辦。",a:"束手無策"},
+{q:"隊伍一路攻進決賽，可說是________。",a:"直搗黃龍"},
+{q:"這個結局太精彩，讓人忍不住________。",a:"拍案叫絕"},
+{q:"流程太多規定，顯得有點________。",a:"繁文縟節"},
+{q:"只要努力讀書，未來就是一條________。",a:"康莊大道"},
+{q:"他生活簡單，做事________。",a:"克勤克儉"},
+{q:"只看到眼前，根本是________。",a:"坐井觀天"},
+{q:"她身材高挑，看起來________。",a:"亭亭玉立"},
+{q:"公司發展越來越好，正________。",a:"蒸蒸日上"}];
+// ===== 遊戲設定 =====
+let selected = questionBank.sort(()=>0.5-Math.random()).slice(0,20);
+let current = 0;
+let score = 0;
+let answered = false;
+
+// ===== 產生選項 =====
+function shuffleOptions(correct){
+    let pool = questionBank.map(q=>q.a).filter(a=>a!==correct);
+    let wrong = pool.sort(()=>0.5-Math.random()).slice(0,3);
+    let options = [correct,...wrong];
+    return options.sort(()=>0.5-Math.random());
+}
+
+function loadQuestion(){
+    answered=false;
+
+    if(current>=selected.length){
+        endGame();
+        return;
+    }
+
+    document.getElementById("progress").innerHTML=
+    "第 "+(current+1)+" / 20 題";
+
+    document.getElementById("scoreBoard").innerHTML=
+    "目前總分："+score+" 分";
+
+    let q = selected[current];
+    document.getElementById("question").innerHTML=q.q;
+
+    let options = shuffleOptions(q.a);
+    let html="";
+    options.forEach(opt=>{
+        html+=`<button onclick="checkAnswer('${opt}')">${opt}</button>`;
+    });
+
+    document.getElementById("options").innerHTML=html;
+    document.getElementById("result").innerHTML="";
+}
+
+function checkAnswer(selectedAnswer){
+    if(answered) return;
+    answered=true;
+
+    let correct = selected[current].a;
+    let buttons = document.querySelectorAll("#options button");
+    buttons.forEach(b=>b.disabled=true);
+
+    if(selectedAnswer===correct){
+        score+=5;
+        document.getElementById("result").innerHTML="✅ 答對了！ +5分";
+    }else{
+        document.getElementById("result").innerHTML=
+        "❌ 答錯了！正確答案是："+correct;
+    }
+
+    current++;
+    setTimeout(loadQuestion,1200);
+}
+
+function endGame(){
+    document.getElementById("gameArea").style.display="none";
+    document.getElementById("finalScreen").style.display="block";
+    document.getElementById("finalScoreText").innerHTML=
+    "你的總分是："+score+" / 100 分";
+
+    let comment="";
+    if(score===100) comment="🏆 成語王！太厲害了！";
+    else if(score>=80) comment="🌟 表現優秀！再挑戰一次看看能不能滿分！";
+    else if(score>=60) comment="👍 不錯喔！再多練習會更熟練！";
+    else comment="💪 再加油！多讀例句會更進步！";
+
+    document.getElementById("comment").innerHTML=comment;
+}
+
+loadQuestion();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>成語生活應用 part 9</title>
+<style>
+body{
+    font-family:"Microsoft JhengHei",sans-serif;
+    background:#eef4ff;
+    text-align:center;
+    padding:20px;
+}
+.container{
+    background:white;
+    max-width:900px;
+    margin:auto;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.1);
+}
+h1{font-size:30px;margin-bottom:10px;}
+#progress{
+    font-size:20px;
+    margin-bottom:10px;
+}
+#scoreBoard{
+    font-size:22px;
+    color:#d35400;
+    margin-bottom:20px;
+}
+#question{
+    font-size:22px;
+    margin:25px 0;
+}
+button{
+    display:block;
+    width:90%;
+    margin:10px auto;
+    padding:15px;
+    font-size:20px;
+    border:none;
+    border-radius:12px;
+    background:#4a90e2;
+    color:white;
+    cursor:pointer;
+}
+button:hover{background:#357abd;}
+button:disabled{
+    background:#cccccc;
+    cursor:not-allowed;
+}
+#result{
+    font-size:20px;
+    margin-top:15px;
+    min-height:30px;
+}
+#finalScreen{
+    display:none;
+}
+.finalScore{
+    font-size:28px;
+    color:#e74c3c;
+    margin:20px 0;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>🌟 成語生活應用 part 9</h1>
+
+<div id="progress"></div>
+<div id="scoreBoard">目前總分：0 分</div>
+
+<div id="gameArea">
+    <div id="question"></div>
+    <div id="options"></div>
+    <div id="result"></div>
+</div>
+
+<div id="finalScreen">
+    <h2>🎉 測驗完成！</h2>
+    <div class="finalScore" id="finalScoreText"></div>
+    <div id="comment"></div>
+    <br>
+    <button onclick="location.reload()">🔄 再玩一次</button>
+</div>
+
+</div>
+
+<script>
+
+// ===== 題庫（口語生活版） =====
+const questionBank = [
+
+{q:"原本已經消失的壞習慣，最近又開始出現，真是________。",a:"死灰復燃"},
+{q:"這種傳統技藝現在只剩他一人會，可說是________。",a:"碩果僅存"},
+{q:"他從小住在親戚家，有點________的感覺。",a:"寄人籬下"},
+{q:"這位校長經驗豐富、大家都很尊敬，可說是________。",a:"德高望重"},
+{q:"這點影響其實________，幾乎可以忽略。",a:"微乎其微"},
+{q:"他一直不肯改變舊觀念，顯得有點________。",a:"抱殘守缺"},
+{q:"比賽最後一刻，他________做出決定，成功逆轉。",a:"當機立斷"},
+{q:"在困難時仍堅持原則的人，正是________。",a:"疾風勁草"},
+{q:"老師總是鼓勵大家多說優點，做到________。",a:"隱惡揚善"},
+{q:"他年紀還小，經驗不足，可說是________。",a:"羽毛未豐"},
+{q:"面對挫折仍努力不放棄，真是________。",a:"百折不撓"},
+{q:"比賽前他先休息調整，準備________再上場。",a:"養精蓄銳"},
+{q:"他從小過著舒適生活，有點________。",a:"養尊處優"},
+{q:"他講話態度正直嚴肅，讓人覺得________。",a:"義正辭嚴"},
+{q:"這場勝利全靠大家努力，是大家的________。",a:"汗馬功勞"},
+{q:"他只是為了出名而做善事，有點________。",a:"沽名釣譽"},
+{q:"現在最重要的事情就是完成報告，這是________。",a:"當務之急"},
+{q:"老師已經提醒很多次，但他還是忘記，真是________。",a:"三令五申"},
+{q:"他用不同方法比賽，結果________成功了。",a:"出奇制勝"},
+{q:"他在班上總是欺負同學，行為________。",a:"橫行霸道"},
+{q:"寫作文時他常常________，引用很多例子。",a:"引經據典"},
+{q:"一個人力量有限，真是________。",a:"孤掌難鳴"},
+{q:"練習一段時間後，他的表現開始________。",a:"漸入佳境"},
+{q:"他們從小一起長大，是________的好朋友。",a:"莫逆之交"},
+{q:"這次考試他準備充分，可以說________。",a:"十拿九穩"},
+{q:"兩人有相同經歷，因此________。",a:"同病相憐"},
+{q:"假日人潮________，非常熱鬧。",a:"絡繹不絕"},
+{q:"自然界就是________，強者生存。",a:"弱肉強食"},
+{q:"比賽開始，大家________搶先出發。",a:"爭先恐後"},
+{q:"做出傷害他人的事，真是________。",a:"傷天害理"},
+{q:"這個計畫設計得很好，可以說________。",a:"無懈可擊"},
+{q:"現在只能先用________的方法解決。",a:"權宜之計"},
+{q:"他左右為難，處於________的情況。",a:"進退維谷"},
+{q:"上台報告時，他緊張得________。",a:"戰戰兢兢"},
+{q:"沒有工具，他只能________完成任務。",a:"赤手空拳"},
+{q:"活動現場大家________一起參與。",a:"扶老攜幼"},
+{q:"情況緊張，衝突似乎________。",a:"一觸即發"},
+{q:"這部電影太好看了，讓人________。",a:"欲罷不能"},
+{q:"做壞事卻以為沒人知道，根本是________。",a:"掩耳盜鈴"},
+{q:"服務很好，讓人有________的感覺。",a:"賓至如歸"},
+{q:"他見識不多，顯得有些________。",a:"孤陋寡聞"},
+{q:"海浪翻滾，看起來非常________。",a:"驚濤駭浪"},
+{q:"這座城市夜景美得像________。",a:"傾國傾城"},
+{q:"他做事總是________，一步一步來。",a:"步步為營"},
+{q:"得到幫助後，他就像________，表現更好。",a:"如虎添翼"},
+{q:"重要文件竟然________消失了。",a:"不翼而飛"},
+{q:"老經驗讓他在困難時________。",a:"老馬識途"},
+{q:"比賽輸了，他顯得________。",a:"垂頭喪氣"},
+{q:"即使失敗，他仍然________不放棄。",a:"困獸猶鬥"},
+{q:"他對這件事非常忠誠，可以說________。",a:"死心塌地"}];
+// ===== 遊戲設定 =====
+let selected = questionBank.sort(()=>0.5-Math.random()).slice(0,20);
+let current = 0;
+let score = 0;
+let answered = false;
+
+// ===== 產生選項 =====
+function shuffleOptions(correct){
+    let pool = questionBank.map(q=>q.a).filter(a=>a!==correct);
+    let wrong = pool.sort(()=>0.5-Math.random()).slice(0,3);
+    let options = [correct,...wrong];
+    return options.sort(()=>0.5-Math.random());
+}
+
+function loadQuestion(){
+    answered=false;
+
+    if(current>=selected.length){
+        endGame();
+        return;
+    }
+
+    document.getElementById("progress").innerHTML=
+    "第 "+(current+1)+" / 20 題";
+
+    document.getElementById("scoreBoard").innerHTML=
+    "目前總分："+score+" 分";
+
+    let q = selected[current];
+    document.getElementById("question").innerHTML=q.q;
+
+    let options = shuffleOptions(q.a);
+    let html="";
+    options.forEach(opt=>{
+        html+=`<button onclick="checkAnswer('${opt}')">${opt}</button>`;
+    });
+
+    document.getElementById("options").innerHTML=html;
+    document.getElementById("result").innerHTML="";
+}
+
+function checkAnswer(selectedAnswer){
+    if(answered) return;
+    answered=true;
+
+    let correct = selected[current].a;
+    let buttons = document.querySelectorAll("#options button");
+    buttons.forEach(b=>b.disabled=true);
+
+    if(selectedAnswer===correct){
+        score+=5;
+        document.getElementById("result").innerHTML="✅ 答對了！ +5分";
+    }else{
+        document.getElementById("result").innerHTML=
+        "❌ 答錯了！正確答案是："+correct;
+    }
+
+    current++;
+    setTimeout(loadQuestion,1200);
+}
+
+function endGame(){
+    document.getElementById("gameArea").style.display="none";
+    document.getElementById("finalScreen").style.display="block";
+    document.getElementById("finalScoreText").innerHTML=
+    "你的總分是："+score+" / 100 分";
+
+    let comment="";
+    if(score===100) comment="🏆 成語王！太厲害了！";
+    else if(score>=80) comment="🌟 表現優秀！再挑戰一次看看能不能滿分！";
+    else if(score>=60) comment="👍 不錯喔！再多練習會更熟練！";
+    else comment="💪 再加油！多讀例句會更進步！";
+
+    document.getElementById("comment").innerHTML=comment;
+}
+
+loadQuestion();
+
+</script>
+</body>
+</html>
